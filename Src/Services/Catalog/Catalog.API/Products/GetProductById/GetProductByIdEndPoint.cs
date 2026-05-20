@@ -1,0 +1,26 @@
+﻿
+namespace Catalog.API.Products.GetProductById
+{
+    // public record GetProductByIdRequest();
+    public record GetProductByIdResponse(Product Product);
+    public class GetProductByIdEndPoint : ICarterModule
+    {
+        public void AddRoutes(IEndpointRouteBuilder app)
+        {
+            app.MapGet("/products/{id}", async (Guid id, ISender sender) =>
+             {
+                 var result = await sender.Send(new GetProductByIdQuery(id));
+                 var response = result.Adapt<GetProductByIdResponse>();
+                 return Results.Ok(response);
+             })
+             .WithName("GetProductById")
+             .Produces<GetProductByIdResponse>(StatusCodes.Status200OK)
+             .Produces(StatusCodes.Status404NotFound)
+             .ProducesProblem(StatusCodes.Status400BadRequest)
+             .WithSummary("Get a product by id")
+             .WithDescription("Get a product by id")
+             .WithTags("Products");
+
+        }
+    }
+}
